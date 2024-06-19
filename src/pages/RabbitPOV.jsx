@@ -3,6 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getRandomInt } from '../utils';
 
+const SCORE_THRESHOLD = 10;
+
 const RabbitPOV = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [carrots, setCarrots] = useState([]);
@@ -63,7 +65,15 @@ const RabbitPOV = () => {
     carrots.forEach((carrot) => {
       if (checkCollision(position, carrot)) {
         setCarrots((prevCarrots) => prevCarrots.filter((c) => c.id !== carrot.id));
-        setScore((prevScore) => prevScore + 1);
+        setScore((prevScore) => {
+          const newScore = prevScore + 1;
+          if (newScore >= SCORE_THRESHOLD) {
+            // Trigger next adventure
+            setDescription("Congratulations! You've collected enough carrots to move to the next adventure!");
+            // Implement logic to navigate to the next adventure
+          }
+          return newScore;
+        });
       }
     });
   }, [position, carrots]);
@@ -114,6 +124,7 @@ const RabbitPOV = () => {
         </Card>
       </div>
       <Button className="mt-4" onClick={() => setDescription("Keep going! Collect more carrots!")}>Update Description</Button>
+      <Button className="mt-4" onClick={() => setDescription("Congratulations! You've collected enough carrots to move to the next adventure!")}>Next Adventure</Button>
     </div>
   );
 };
