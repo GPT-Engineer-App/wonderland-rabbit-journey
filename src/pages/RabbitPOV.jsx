@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { getRandomInt } from '../utils';
 
 const RabbitPOV = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [carrots, setCarrots] = useState([]);
+  const [score, setScore] = useState(0);
 
   const handleKeyPress = (event) => {
     switch (event.key) {
@@ -22,12 +25,44 @@ const RabbitPOV = () => {
     }
   };
 
+  const spawnCarrot = () => {
+    const newCarrot = {
+      id: Date.now(),
+      x: getRandomInt(0, window.innerWidth - 20),
+      y: getRandomInt(0, window.innerHeight - 20),
+    };
+    setCarrots((prevCarrots) => [...prevCarrots, newCarrot]);
+  };
+
+  const checkCollision = (rabbit, carrot) => {
+    return (
+      rabbit.x < carrot.x + 20 &&
+      rabbit.x + 20 > carrot.x &&
+      rabbit.y < carrot.y + 20 &&
+      rabbit.y + 20 > carrot.y
+    );
+  };
+
+  useEffect(() => {
+    const interval = setInterval(spawnCarrot, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, []);
+
+  useEffect(() => {
+    carrots.forEach((carrot) => {
+      if (checkCollision(position, carrot)) {
+        setCarrots((prevCarrots) => prevCarrots.filter((c) => c.id !== carrot.id));
+        setScore((prevScore) => prevScore + 1);
+      }
+    });
+  }, [position, carrots]);
 
   return (
     <div className="container mx-auto p-4">
@@ -45,6 +80,22 @@ const RabbitPOV = () => {
         }}
       >
         🐇
+      </div>
+      {carrots.map((carrot) => (
+        <div
+          key={carrot.id}
+          style={{
+            position: 'absolute',
+            left: `${carrot.x}px`,
+            top: `${carrot.y}px`,
+            width: '20px',
+            height: '20px',
+            backgroundColor: 'orange',
+          }}
+        />
+      ))}
+      <div className="score">
+        <p>Score: {score}</p>
       </div>
     </div>
   );
