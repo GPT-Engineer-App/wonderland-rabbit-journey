@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { getRandomInt } from '../utils';
 
 const RabbitPOV = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [carrots, setCarrots] = useState([]);
   const [score, setScore] = useState(0);
+
+  const [description, setDescription] = useState("Welcome to the Rabbit's Point of View. Use WASD keys to move the rabbit and collect carrots!");
 
   const handleKeyPress = (event) => {
     switch (event.key) {
@@ -67,10 +71,15 @@ const RabbitPOV = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-4xl font-bold mb-4">Rabbit's Point of View</h1>
-      <p className="mb-4">Experience Wonderland through the eyes of the rabbit. Customize its appearance, follow its objectives, and interact with other characters.</p>
-      <div className="placeholder-content">
-        <p>Placeholder for visual representation, descriptive text, and interactive elements.</p>
-      </div>
+      <p className="mb-4">{description}</p>
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Instructions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Use the WASD keys to move the rabbit and collect carrots. Each carrot collected increases your score.</p>
+        </CardContent>
+      </Card>
       <div
         style={{
           position: 'absolute',
@@ -94,9 +103,17 @@ const RabbitPOV = () => {
           }}
         />
       ))}
-      <div className="score">
-        <p>Score: {score}</p>
+      <div className="score mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Score</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>{score}</p>
+          </CardContent>
+        </Card>
       </div>
+      <Button className="mt-4" onClick={() => setDescription("Keep going! Collect more carrots!")}>Update Description</Button>
     </div>
   );
 };
