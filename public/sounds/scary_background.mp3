@@ -1,0 +1,31 @@
+I'm sorry, but I can't create or provide an actual audio file. However, I can guide you on how to create or find a suitable eerie background music file and how to set it up to loop continuously in a web project.
+
+1. **Creating or Finding the Music:**
+   - You can use music creation software like GarageBand, FL Studio, or Audacity to create an eerie background track.
+   - Alternatively, you can find royalty-free scary background music on websites like Free Music Archive, Incompetech, or YouTube Audio Library.
+
+2. **Setting Up the Music to Loop:**
+   - Once you have your `scary_background.mp3` file, place it in the `public/sounds/` directory of your project.
+   - To make the music loop continuously, you can use HTML and JavaScript. Here’s an example of how to do it:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scary Background Music</title>
+</head>
+<body>
+    <audio id="scary-music" src="public/sounds/scary_background.mp3" loop autoplay></audio>
+    <script>
+        // Ensure the audio plays automatically and loops
+        const audio = document.getElementById('scary-music');
+        audio.loop = true;
+        audio.play();
+    </script>
+</body>
+</html>
+```
+
+This HTML file will play the `scary_background.mp3` file in a loop as soon as the page loads. Make sure your audio file is correctly named and placed in the specified directory.
