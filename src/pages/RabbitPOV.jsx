@@ -16,20 +16,36 @@ const RabbitPOV = () => {
   const [flash, setFlash] = useState(false);
 
   const [description, setDescription] = useState("Welcome to the Rabbit's Point of View. Use WASD keys to move the rabbit and collect carrots!");
+  const [holePosition, setHolePosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [canDodge, setCanDodge] = useState(true);
+  const [velocity, setVelocity] = useState({ x: 0, y: 0 });
+
+  const handleDodge = () => {
+    if (canDodge) {
+      setVelocity({ x: velocity.x * 2, y: velocity.y * 2 });
+      setCanDodge(false);
+      setTimeout(() => {
+        setCanDodge(true);
+      }, 5000);
+    }
+  };
 
   const handleKeyPress = (event) => {
     switch (event.key) {
       case 'w':
-        setPosition((prevPosition) => ({ ...prevPosition, y: prevPosition.y - 10 }));
+        setVelocity((prevVelocity) => ({ ...prevVelocity, y: prevVelocity.y - 1 }));
         break;
       case 'a':
-        setPosition((prevPosition) => ({ ...prevPosition, x: prevPosition.x - 10 }));
+        setVelocity((prevVelocity) => ({ ...prevVelocity, x: prevVelocity.x - 1 }));
         break;
       case 's':
-        setPosition((prevPosition) => ({ ...prevPosition, y: prevPosition.y + 10 }));
+        setVelocity((prevVelocity) => ({ ...prevVelocity, y: prevVelocity.y + 1 }));
         break;
       case 'd':
-        setPosition((prevPosition) => ({ ...prevPosition, x: prevPosition.x + 10 }));
+        setVelocity((prevVelocity) => ({ ...prevVelocity, x: prevVelocity.x + 1 }));
+        break;
+      case ' ':
+        handleDodge();
         break;
       default:
         break;
@@ -85,10 +101,10 @@ const RabbitPOV = () => {
   const moveCarrots = () => {
     setCarrots((prevCarrots) =>
       prevCarrots.map((carrot) => {
-        const dx = carrot.x - position.x;
-        const dy = carrot.y - position.y;
+        const dx = holePosition.x - carrot.x;
+        const dy = holePosition.y - carrot.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const speed = 5; // Rabbit's speed is 10, so carrot's speed is 5 (50%)
+        const speed = 2.5; // Carrot's speed is 25% of Rabbit's speed
         return {
           ...carrot,
           x: carrot.x + (dx / distance) * speed,
@@ -116,6 +132,22 @@ const RabbitPOV = () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, []);
+
+  useEffect(() => {
+    const moveRabbit = () => {
+      setPosition((prevPosition) => ({
+        x: prevPosition.x + velocity.x,
+        y: prevPosition.y + velocity.y,
+      }));
+      setVelocity((prevVelocity) => ({
+        x: prevVelocity.x * 0.9, // Apply friction to simulate momentum
+        y: prevVelocity.y * 0.9,
+      }));
+    };
+
+    const interval = setInterval(moveRabbit, 100);
+    return () => clearInterval(interval);
+  }, [velocity]);
 
   useEffect(() => {
     carrots.forEach((carrot) => {
@@ -190,6 +222,18 @@ const RabbitPOV = () => {
       >
         🐇
       </div>
+      <div
+        style={{
+          position: 'absolute',
+          left: `${holePosition.x}px`,
+          top: `${holePosition.y}px`,
+          width: '40px',
+          height: '40px',
+          backgroundColor: 'black',
+          borderRadius: '50%',
+        }}
+      />
+      
       {carrots.map((carrot) => (
         <div
           key={carrot.id}
