@@ -175,6 +175,7 @@ const RabbitPOV = () => {
       if (checkCollision(position, monster)) {
         setDescription("Game Over! You collided with a monster.");
         setExplosions((prevExplosions) => [...prevExplosions, { id: Date.now(), x: position.x, y: position.y }]);
+        setScore((prevScore) => prevScore - 1); // Decrement score by 1
         // Implement game over logic
       }
     });
@@ -198,6 +199,13 @@ const RabbitPOV = () => {
     const carrotMoveInterval = setInterval(moveCarrots, 100);
     return () => clearInterval(carrotMoveInterval);
   }, [position]);
+
+  const handleReposition = () => {
+    setPosition({
+      x: getRandomInt(0, window.innerWidth - 20),
+      y: getRandomInt(0, window.innerHeight - 20),
+    });
+  };
 
   return (
     <div className={`container mx-auto p-4 ${theme === 'scary' ? 'bg-black text-red-500' : ''}`}>
@@ -286,6 +294,7 @@ const RabbitPOV = () => {
       </div>
       <Button className="mt-4" onClick={() => setDescription("Keep going! Collect more carrots!")}>Update Description</Button>
       <Button className="mt-4" onClick={() => setDescription("Congratulations! You've collected enough carrots to move to the next adventure!")}>Next Adventure</Button>
+      <Button className="mt-4" onClick={handleReposition}>Reposition Rabbit</Button>
     </div>
   );
 };
