@@ -82,6 +82,22 @@ const RabbitPOV = () => {
     );
   };
 
+  const moveCarrots = () => {
+    setCarrots((prevCarrots) =>
+      prevCarrots.map((carrot) => {
+        const dx = carrot.x - position.x;
+        const dy = carrot.y - position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const speed = 5; // Rabbit's speed is 10, so carrot's speed is 5 (50%)
+        return {
+          ...carrot,
+          x: carrot.x + (dx / distance) * speed,
+          y: carrot.y + (dy / distance) * speed,
+        };
+      })
+    );
+  };
+
   useEffect(() => {
     const carrotInterval = setInterval(spawnCarrot, 2000);
     return () => clearInterval(carrotInterval);
@@ -108,8 +124,15 @@ const RabbitPOV = () => {
         setScore((prevScore) => {
           const newScore = prevScore + 1;
           if (newScore >= SCORE_THRESHOLD) {
-            setLevel((prevLevel) => prevLevel + 1);
-            setDescription("Congratulations! You've collected enough carrots to move to the next level!");
+            setLevel((prevLevel) => {
+              const newLevel = prevLevel + 1;
+              if (newLevel === 2) {
+                setDescription("Congratulations! You've collected enough carrots to move to the next level!");
+              } else if (newLevel === 3) {
+                setDescription("Amazing! You've reached the third level. Keep going!");
+              }
+              return newLevel;
+            });
           }
           return newScore;
         });
@@ -138,6 +161,11 @@ const RabbitPOV = () => {
   useEffect(() => {
     const monsterMoveInterval = setInterval(moveMonsters, 100);
     return () => clearInterval(monsterMoveInterval);
+  }, [position]);
+
+  useEffect(() => {
+    const carrotMoveInterval = setInterval(moveCarrots, 100);
+    return () => clearInterval(carrotMoveInterval);
   }, [position]);
 
   return (
