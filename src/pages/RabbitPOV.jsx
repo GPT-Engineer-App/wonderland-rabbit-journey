@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getRandomInt } from '../utils';
 
-const SCORE_THRESHOLD = 10;
+const SCORE_THRESHOLD = 15;
 const MONSTER_SPAWN_THRESHOLD = 5;
 
 const RabbitPOV = () => {
@@ -12,6 +12,7 @@ const RabbitPOV = () => {
   const [monsters, setMonsters] = useState([]);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
+  const [theme, setTheme] = useState('normal');
 
   const [description, setDescription] = useState("Welcome to the Rabbit's Point of View. Use WASD keys to move the rabbit and collect carrots!");
 
@@ -51,6 +52,8 @@ const RabbitPOV = () => {
       type: getRandomInt(1, 3), // Different types of monsters
     };
     setMonsters((prevMonsters) => [...prevMonsters, newMonster]);
+    const audio = new Audio('/sounds/monster_spawn.mp3');
+    audio.play();
   };
 
   const checkCollision = (rabbit, entity) => {
@@ -104,8 +107,17 @@ const RabbitPOV = () => {
     });
   }, [position, carrots, monsters]);
 
+  useEffect(() => {
+    if (score >= SCORE_THRESHOLD) {
+      setTheme('scary');
+      const audio = new Audio('/sounds/scary_background.mp3');
+      audio.loop = true;
+      audio.play();
+    }
+  }, [score]);
+
   return (
-    <div className="container mx-auto p-4">
+    <div className={`container mx-auto p-4 ${theme === 'scary' ? 'bg-black text-red-500' : ''}`}>
       <h1 className="text-4xl font-bold mb-4">Rabbit's Point of View</h1>
       <p className="mb-4">{description}</p>
       <Card className="mb-4">
