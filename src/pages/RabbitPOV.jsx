@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { getRandomInt } from '../utils';
 
 const SCORE_THRESHOLD = 10;
+const MONSTER_SPAWN_THRESHOLD = 5;
 
 const RabbitPOV = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [carrots, setCarrots] = useState([]);
+  const [monsters, setMonsters] = useState([]);
   const [score, setScore] = useState(0);
+  const [level, setLevel] = useState(1);
 
   const [description, setDescription] = useState("Welcome to the Rabbit's Point of View. Use WASD keys to move the rabbit and collect carrots!");
 
@@ -40,19 +43,36 @@ const RabbitPOV = () => {
     setCarrots((prevCarrots) => [...prevCarrots, newCarrot]);
   };
 
-  const checkCollision = (rabbit, carrot) => {
+  const spawnMonster = () => {
+    const newMonster = {
+      id: Date.now(),
+      x: getRandomInt(0, window.innerWidth - 20),
+      y: getRandomInt(0, window.innerHeight - 20),
+      type: getRandomInt(1, 3), // Different types of monsters
+    };
+    setMonsters((prevMonsters) => [...prevMonsters, newMonster]);
+  };
+
+  const checkCollision = (rabbit, entity) => {
     return (
-      rabbit.x < carrot.x + 20 &&
-      rabbit.x + 20 > carrot.x &&
-      rabbit.y < carrot.y + 20 &&
-      rabbit.y + 20 > carrot.y
+      rabbit.x < entity.x + 20 &&
+      rabbit.x + 20 > entity.x &&
+      rabbit.y < entity.y + 20 &&
+      rabbit.y + 20 > entity.y
     );
   };
 
   useEffect(() => {
-    const interval = setInterval(spawnCarrot, 2000);
-    return () => clearInterval(interval);
+    const carrotInterval = setInterval(spawnCarrot, 2000);
+    return () => clearInterval(carrotInterval);
   }, []);
+
+  useEffect(() => {
+    if (level > MONSTER_SPAWN_THRESHOLD) {
+      const monsterInterval = setInterval(spawnMonster, 5000);
+      return () => clearInterval(monsterInterval);
+    }
+  }, [level]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
@@ -68,15 +88,21 @@ const RabbitPOV = () => {
         setScore((prevScore) => {
           const newScore = prevScore + 1;
           if (newScore >= SCORE_THRESHOLD) {
-            // Trigger next adventure
-            setDescription("Congratulations! You've collected enough carrots to move to the next adventure!");
-            // Implement logic to navigate to the next adventure
+            setLevel((prevLevel) => prevLevel + 1);
+            setDescription("Congratulations! You've collected enough carrots to move to the next level!");
           }
           return newScore;
         });
       }
     });
-  }, [position, carrots]);
+
+    monsters.forEach((monster) => {
+      if (checkCollision(position, monster)) {
+        setDescription("Game Over! You collided with a monster.");
+        // Implement game over logic
+      }
+    });
+  }, [position, carrots, monsters]);
 
   return (
     <div className="container mx-auto p-4">
@@ -110,6 +136,19 @@ const RabbitPOV = () => {
             width: '20px',
             height: '20px',
             backgroundColor: 'orange',
+          }}
+        />
+      ))}
+      {monsters.map((monster) => (
+        <div
+          key={monster.id}
+          style={{
+            position: 'absolute',
+            left: `${monster.x}px`,
+            top: `${monster.y}px`,
+            width: '20px',
+            height: '20px',
+            backgroundColor: monster.type === 1 ? 'red' : monster.type === 2 ? 'green' : 'blue',
           }}
         />
       ))}
