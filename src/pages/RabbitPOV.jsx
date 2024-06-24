@@ -104,7 +104,7 @@ const RabbitPOV = () => {
         const dx = holePosition.x - carrot.x;
         const dy = holePosition.y - carrot.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const speed = 2.5; // Carrot's speed is 25% of Rabbit's speed
+        const speed = 0.5; // Carrot's speed is 25% of Rabbit's speed
         return {
           ...carrot,
           x: carrot.x + (dx / distance) * speed,
