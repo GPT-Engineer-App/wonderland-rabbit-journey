@@ -13,6 +13,7 @@ const RabbitPOV = () => {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [theme, setTheme] = useState('normal');
+  const [flash, setFlash] = useState(false);
 
   const [description, setDescription] = useState("Welcome to the Rabbit's Point of View. Use WASD keys to move the rabbit and collect carrots!");
 
@@ -65,6 +66,22 @@ const RabbitPOV = () => {
     );
   };
 
+  const moveMonsters = () => {
+    setMonsters((prevMonsters) =>
+      prevMonsters.map((monster) => {
+        const dx = position.x - monster.x;
+        const dy = position.y - monster.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const speed = 2; // Adjust the speed of the monsters
+        return {
+          ...monster,
+          x: monster.x + (dx / distance) * speed,
+          y: monster.y + (dy / distance) * speed,
+        };
+      })
+    );
+  };
+
   useEffect(() => {
     const carrotInterval = setInterval(spawnCarrot, 2000);
     return () => clearInterval(carrotInterval);
@@ -102,6 +119,8 @@ const RabbitPOV = () => {
     monsters.forEach((monster) => {
       if (checkCollision(position, monster)) {
         setDescription("Game Over! You collided with a monster.");
+        setFlash(true);
+        setTimeout(() => setFlash(false), 100); // Flash effect duration
         // Implement game over logic
       }
     });
@@ -116,8 +135,13 @@ const RabbitPOV = () => {
     }
   }, [score]);
 
+  useEffect(() => {
+    const monsterMoveInterval = setInterval(moveMonsters, 100);
+    return () => clearInterval(monsterMoveInterval);
+  }, [position]);
+
   return (
-    <div className={`container mx-auto p-4 ${theme === 'scary' ? 'bg-black text-red-500' : ''}`}>
+    <div className={`container mx-auto p-4 ${theme === 'scary' ? 'bg-black text-red-500' : ''} ${flash ? 'flash' : ''}`}>
       <h1 className="text-4xl font-bold mb-4">Rabbit's Point of View</h1>
       <p className="mb-4">{description}</p>
       <Card className="mb-4">
