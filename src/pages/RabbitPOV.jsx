@@ -13,7 +13,7 @@ const RabbitPOV = () => {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [theme, setTheme] = useState('normal');
-  const [flash, setFlash] = useState(false);
+  const [explosions, setExplosions] = useState([]);
 
   const [description, setDescription] = useState("Welcome to the Rabbit's Point of View. Use WASD keys to move the rabbit and collect carrots!");
   const [holePosition, setHolePosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
@@ -143,10 +143,10 @@ const RabbitPOV = () => {
         x: prevVelocity.x * 0.9, // Apply friction to simulate momentum
         y: prevVelocity.y * 0.9,
       }));
+      requestAnimationFrame(moveRabbit);
     };
 
-    const interval = setInterval(moveRabbit, 100);
-    return () => clearInterval(interval);
+    requestAnimationFrame(moveRabbit);
   }, [velocity]);
 
   useEffect(() => {
@@ -174,8 +174,7 @@ const RabbitPOV = () => {
     monsters.forEach((monster) => {
       if (checkCollision(position, monster)) {
         setDescription("Game Over! You collided with a monster.");
-        setFlash(true);
-        setTimeout(() => setFlash(false), 100); // Flash effect duration
+        setExplosions((prevExplosions) => [...prevExplosions, { id: Date.now(), x: position.x, y: position.y }]);
         // Implement game over logic
       }
     });
@@ -201,7 +200,7 @@ const RabbitPOV = () => {
   }, [position]);
 
   return (
-    <div className={`container mx-auto p-4 ${theme === 'scary' ? 'bg-black text-red-500' : ''} ${flash ? 'flash' : ''}`}>
+    <div className={`container mx-auto p-4 ${theme === 'scary' ? 'bg-black text-red-500' : ''}`}>
       <h1 className="text-4xl font-bold mb-4">Rabbit's Point of View</h1>
       <p className="mb-4">{description}</p>
       <Card className="mb-4">
@@ -217,7 +216,7 @@ const RabbitPOV = () => {
           position: 'absolute',
           left: `${position.x}px`,
           top: `${position.y}px`,
-          transition: 'left 0.1s, top 0.1s',
+          transition: 'left 0.05s, top 0.05s',
         }}
       >
         🐇
@@ -257,6 +256,21 @@ const RabbitPOV = () => {
             width: '20px',
             height: '20px',
             backgroundColor: monster.type === 1 ? 'red' : monster.type === 2 ? 'green' : 'blue',
+          }}
+        />
+      ))}
+      {explosions.map((explosion) => (
+        <div
+          key={explosion.id}
+          style={{
+            position: 'absolute',
+            left: `${explosion.x}px`,
+            top: `${explosion.y}px`,
+            width: '50px',
+            height: '50px',
+            backgroundColor: 'yellow',
+            borderRadius: '50%',
+            animation: 'explosion-animation 0.5s ease-out',
           }}
         />
       ))}
