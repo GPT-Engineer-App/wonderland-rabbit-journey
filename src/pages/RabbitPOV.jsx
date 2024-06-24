@@ -14,6 +14,7 @@ const RabbitPOV = () => {
   const [level, setLevel] = useState(1);
   const [theme, setTheme] = useState('normal');
   const [flash, setFlash] = useState(false);
+  const [flashPosition, setFlashPosition] = useState({ x: 0, y: 0 });
 
   const [description, setDescription] = useState("Welcome to the Rabbit's Point of View. Use WASD keys to move the rabbit and collect carrots!");
   const [holePosition, setHolePosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
@@ -145,7 +146,7 @@ const RabbitPOV = () => {
       }));
     };
 
-    const interval = setInterval(moveRabbit, 100);
+    const interval = setInterval(moveRabbit, 50); // Reduced interval for smoother animation
     return () => clearInterval(interval);
   }, [velocity]);
 
@@ -175,7 +176,9 @@ const RabbitPOV = () => {
       if (checkCollision(position, monster)) {
         setDescription("Game Over! You collided with a monster.");
         setFlash(true);
+        setFlashPosition({ x: position.x, y: position.y });
         setTimeout(() => setFlash(false), 100); // Flash effect duration
+        setScore((prevScore) => prevScore - 1); // Decrease score by 1
         // Implement game over logic
       }
     });
@@ -191,12 +194,12 @@ const RabbitPOV = () => {
   }, [score]);
 
   useEffect(() => {
-    const monsterMoveInterval = setInterval(moveMonsters, 100);
+    const monsterMoveInterval = setInterval(moveMonsters, 50); // Reduced interval for smoother animation
     return () => clearInterval(monsterMoveInterval);
   }, [position]);
 
   useEffect(() => {
-    const carrotMoveInterval = setInterval(moveCarrots, 100);
+    const carrotMoveInterval = setInterval(moveCarrots, 50); // Reduced interval for smoother animation
     return () => clearInterval(carrotMoveInterval);
   }, [position]);
 
@@ -217,7 +220,7 @@ const RabbitPOV = () => {
           position: 'absolute',
           left: `${position.x}px`,
           top: `${position.y}px`,
-          transition: 'left 0.1s, top 0.1s',
+          transition: 'left 0.05s, top 0.05s',
         }}
       >
         🐇
@@ -260,6 +263,20 @@ const RabbitPOV = () => {
           }}
         />
       ))}
+      {flash && (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${flashPosition.x - 50}px`,
+            top: `${flashPosition.y - 50}px`,
+            width: '100px',
+            height: '100px',
+            backgroundColor: 'rgba(255, 0, 0, 0.5)',
+            borderRadius: '50%',
+            animation: 'flash-animation 0.1s',
+          }}
+        />
+      )}
       <div className="score mt-4">
         <Card>
           <CardHeader>
